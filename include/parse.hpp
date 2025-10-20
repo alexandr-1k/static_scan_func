@@ -13,29 +13,13 @@
 namespace stdx::details {
 using namespace std::literals;
 
+template <typename T, typename... Ts>
+constexpr bool in_types_v = (std::is_same_v<T, Ts> || ...);
+
 template <typename T>
 concept AllowedType =
-    std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::int16_t> || std::is_same_v<T, std::int32_t> ||
-    std::is_same_v<T, std::int64_t> || std::is_same_v<T, std::uint8_t> || std::is_same_v<T, std::uint16_t> ||
-    std::is_same_v<T, std::uint32_t> || std::is_same_v<T, std::uint64_t> || std::is_same_v<T, std::string_view> ||
-    (std::is_const_v<T> &&
-     (std::is_same_v<std::remove_cv_t<T>, std::int8_t> || std::is_same_v<std::remove_cv_t<T>, std::int16_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::int32_t> || std::is_same_v<std::remove_cv_t<T>, std::int64_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::uint8_t> || std::is_same_v<std::remove_cv_t<T>, std::uint16_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::uint32_t> || std::is_same_v<std::remove_cv_t<T>, std::uint64_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::string_view>)) ||
-    (std::is_volatile_v<T> &&
-     (std::is_same_v<std::remove_cv_t<T>, std::int8_t> || std::is_same_v<std::remove_cv_t<T>, std::int16_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::int32_t> || std::is_same_v<std::remove_cv_t<T>, std::int64_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::uint8_t> || std::is_same_v<std::remove_cv_t<T>, std::uint16_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::uint32_t> || std::is_same_v<std::remove_cv_t<T>, std::uint64_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::string_view>)) ||
-    (std::is_const_v<T> && std::is_volatile_v<T> &&
-     (std::is_same_v<std::remove_cv_t<T>, std::int8_t> || std::is_same_v<std::remove_cv_t<T>, std::int16_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::int32_t> || std::is_same_v<std::remove_cv_t<T>, std::int64_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::uint8_t> || std::is_same_v<std::remove_cv_t<T>, std::uint16_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::uint32_t> || std::is_same_v<std::remove_cv_t<T>, std::uint64_t> ||
-      std::is_same_v<std::remove_cv_t<T>, std::string_view>));
+    !std::is_reference_v<T> && in_types_v<std::remove_cv_t<T>, std::int8_t, std::int16_t, std::int32_t, std::int64_t,
+                                          std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t, std::string_view>;
 
 // Шаблонная функция, возвращающая пару позиций в строке с исходными данными, соотвествующих I-ому плейсхолдеру
 template <int I, format_string fmt, fixed_string source>
